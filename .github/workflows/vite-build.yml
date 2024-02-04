@@ -35,6 +35,7 @@ jobs:
     - name: Tag New Version
       run: |
         VERSION=$(node -p "require('./package.json').version")
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
         git tag -a "v$VERSION" -m "Release v$VERSION"
         git push origin "v$VERSION"
 
@@ -44,8 +45,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ env.VERSION }}
-        release_name: Release ${{ env.VERSION }}
+        tag_name: v${{ env.VERSION }}
+        release_name: Release v${{ env.VERSION }}
         draft: false
         prerelease: false
 
