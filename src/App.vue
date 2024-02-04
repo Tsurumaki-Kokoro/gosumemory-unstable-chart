@@ -3,7 +3,9 @@ import customOverlay from './components/custom_overlay.vue'
 </script>
 
 <template>
-  <custom-overlay />
+  <div>
+    <custom-overlay />
+  </div>
 </template>
 
 <style scoped>
