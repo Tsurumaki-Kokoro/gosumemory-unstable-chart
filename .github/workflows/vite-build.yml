@@ -22,7 +22,7 @@ jobs:
       run: npm install
 
     - name: Build Vite App
-      run: npx vue-tsc && vite build
+      run: npm run build
 
     - name: Package Build Artifacts
       run: zip -r build-${{ env.VERSION }}.zip dist/
