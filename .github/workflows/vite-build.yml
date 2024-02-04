@@ -1,0 +1,60 @@
+name: Build and Release Vite App
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # 确保获取全部历史以正确计算版本号
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20' # 根据你的项目需求更改Node版本
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Build Vite App
+      run: vue-tsc && vite build
+
+    - name: Package Build Artifacts
+      run: zip -r build-${{ env.VERSION }}.zip dist/
+
+    - name: Configure Git
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+
+    - name: Tag New Version
+      run: |
+        VERSION=$(node -p "require('./package.json').version")
+        git tag -a "v$VERSION" -m "Release v$VERSION"
+        git push origin "v$VERSION"
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.VERSION }}
+        release_name: Release ${{ env.VERSION }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./build-${{ env.VERSION }}.zip # 将这个路径更改为你的构建产物路径
+        asset_name: build-${{ env.VERSION }}.zip
+        asset_content_type: application/zip
