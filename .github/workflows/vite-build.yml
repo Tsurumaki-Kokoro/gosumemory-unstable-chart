@@ -24,9 +24,6 @@ jobs:
     - name: Build Vite App
       run: npm run build
 
-    - name: Package Build Artifacts
-      run: zip -r build-${{ env.VERSION }}.zip dist/
-
     - name: Configure Git
       run: |
         git config --local user.email "action@github.com"
@@ -38,6 +35,9 @@ jobs:
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         git tag -a "v$VERSION" -m "Release v$VERSION"
         git push origin "v$VERSION"
+
+    - name: Package Build Artifacts
+      run: zip -r build-${{ env.VERSION }}.zip dist/
 
     - name: Create Release
       id: create_release
